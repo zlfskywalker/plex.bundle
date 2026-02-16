@@ -31,7 +31,7 @@ def request(url):
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    response = _opener.urlopen(request, context=ctx).read()    
+    response = _opener.open(req, context=ctx, timeout=20).read()
     return response
 
 
