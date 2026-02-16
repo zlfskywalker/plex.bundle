@@ -27,7 +27,7 @@ def request(url):
         'Referer': BASE_URL + '/',
     }
     Log('Requested URL: %s' % url)
-    request = urllib2.Request(url, headers=headers)
+    req = urllib2.Request(url, headers=headers)
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
