@@ -15,7 +15,12 @@ curID = "javdb"
 
 
 def getElementFromUrl(url):
-    return html.fromstring(unicode(request(url)))
+    data = request(url)
+    try:
+        data = data.decode('utf-8', 'ignore')
+    except:
+        pass
+    return html.fromstring(data)
 
 
 def request(url):
