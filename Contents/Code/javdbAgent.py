@@ -4,8 +4,10 @@ import ssl
 import re
 from datetime import datetime
 from lxml import html
+import cookielib
 
-
+_cookiejar = cookielib.LWPCookieJar()
+_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(_cookiejar))
 
 BASE_URL = 'https://javdb.com'
 SEARCH_URL = BASE_URL + '/search?q=%s'
@@ -30,7 +32,7 @@ def request(url):
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    response = urllib2.urlopen(request, context=ctx).read()    
+    response = _opener.urlopen(request, context=ctx).read()    
     return response
 
 
@@ -56,7 +58,7 @@ def search(query, results, media, lang):
         results.Sort('score', descending=True)
         Log('movie found: %s' % results)
     except Exception as e:
-        Log('My Custome Error: %s' % e)
+        Log('My Custome Error[javdb]: %s' % e)
 
 
 def update(metadata, media, lang):
