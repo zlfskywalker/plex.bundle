@@ -24,20 +24,52 @@ def getElementFromUrl(url):
 
 
 def request(url):
-   
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
         'Referer': BASE_URL + '/',
+        'Connection': 'close',
     }
-    Log('Requested URL: %s' % url)
+
+    Log('[javdb] Requested URL: %s' % url)
     req = urllib2.Request(url, headers=headers)
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    response = _opener.open(req, timeout=20).read()
-    return response
+
+    try:
+        # Some Plex Python builds don't support context=, so don't pass it.
+        resp = _opener.open(req, timeout=20)
+
+        # If available, log status code
+        try:
+            Log('[javdb] HTTP: %s' % resp.getcode())
+        except:
+            pass
+
+        data = resp.read()
+
+        # Log first 200 chars so we can see Cloudflare/block pages
+        try:
+            preview = data[:200]
+            if isinstance(preview, str):
+                Log('[javdb] Body head: %s' % preview)
+        except:
+            pass
+
+        return data
+
+    except urllib2.HTTPError as e:
+        body = ''
+        try:
+            body = e.read()
+        except:
+            pass
+        Log('[javdb] HTTPError %s for %s' % (str(e.code), url))
+        Log('[javdb] Error body head: %s' % body[:200])
+        raise
+
+    except Exception as e:
+        Log('[javdb] Request failed for %s: %s' % (url, str(e)))
+        raise
 
 
 def elementToString(ele):
