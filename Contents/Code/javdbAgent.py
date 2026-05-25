@@ -5,9 +5,10 @@ from datetime import datetime
 from lxml import html
 
 
-
+JavDB_URL = 'https://javdb.com'
 BASE_URL = 'http://192.168.68.134:8765'
 SEARCH_URL = BASE_URL + '/search?code=%s'
+FETCH_URL = BASE_URL + '/fetch?url=%s'
 curID = "javdb"
 
 
@@ -61,7 +62,7 @@ def update(metadata, media, lang):
     query = str(metadata.id).split("|")[1].replace('__', '/', 4)
     Log('Update Query: ' + BASE_URL + str(query))
     try:
-        movie = getElementFromUrl(BASE_URL + query + '?locale=zh').xpath('//section/div[@class="container"]')[0]
+        movie = getElementFromUrl(FETCH_URL % urllib.quote_plus(JavDB_URL + query + '?locale=zh')).xpath('//section/div[@class="container"]')[0]
 
         # title
         metadata.title = movie.xpath('.//h2')[0].text_content().strip()
@@ -81,8 +82,8 @@ def update(metadata, media, lang):
                 role = metadata.roles.new()
                 role.name = actor.text_content().split('(')[0]
                 metadata.collections.add(role.name)
-                actorpage = BASE_URL + actor.get("href")
-                avatar = getElementFromUrl(BASE_URL + str(actor.get("href"))).xpath('//span[@class="avatar"]')
+                actorpage = JavDB_URL + actor.get("href")
+                avatar = getElementFromUrl(FETCH_URL % urllib.quote_plus(JavDB_URL + str(actor.get("href")))).xpath('//span[@class="avatar"]')
                 if len(avatar)>0 :
                     role.photo = avatar[0].get('style').split("url(")[1].replace(")","")
                 
@@ -114,8 +115,8 @@ def update(metadata, media, lang):
 				    Log(actor.text)
 				    role = metadata.roles.new()
 				    role.name = actor.text_content()
-                    #actorpage = BASE_URL + actor.get("href")
-                    #avatar = getElementFromUrl(BASE_URL + str(actor.get("href"))).xpath('//span[@class="avatar"]')
+                    #actorpage = JavDB_URL + actor.get("href")
+                    #avatar = getElementFromUrl(FETCH_URL % urllib.quote_plus(JavDB_URL + str(actor.get("href")))).xpath('//span[@class="avatar"]')
                     #if len(avatar)>0 :
                     #    role.photo = avatar[0].get('style').split("url(")[1].replace(")","")
                     #metadata.collections.add(role.name)
