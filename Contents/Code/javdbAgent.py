@@ -6,7 +6,7 @@ from lxml import html
 
 
 
-BASE_URL = 'https://javdb.com'
+BASE_URL = 'http://192.168.68.134:8765'
 SEARCH_URL = BASE_URL + '/search?code=%s'
 curID = "javdb"
 
