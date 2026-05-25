@@ -1,13 +1,10 @@
 import urllib2
 import urllib
-import ssl
 import re
 from datetime import datetime
 from lxml import html
-import cookielib
 
-_cookiejar = cookielib.LWPCookieJar()
-_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(_cookiejar))
+
 
 BASE_URL = 'http://192.168.68.134:8765'
 SEARCH_URL = BASE_URL + '/search?code=%s'
@@ -15,61 +12,20 @@ curID = "javdb"
 
 
 def getElementFromUrl(url):
-    data = request(url)
-    try:
-        data = data.decode('utf-8', 'ignore')
-    except:
-        pass
-    return html.fromstring(data)
+    return html.fromstring(unicode(request(url)))
 
 
 def request(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-        'Referer': BASE_URL + '/',
-        'Connection': 'close',
-    }
+    user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
+    headers = {'User-Agent': user_agent}
 
-    Log('[javdb] Requested URL: %s' % url)
+    Log('Requested URL: %s' % url)
+
     req = urllib2.Request(url, headers=headers)
 
-    try:
-        # Some Plex Python builds don't support context=, so don't pass it.
-        resp = _opener.open(req, timeout=20)
+    response = urllib2.urlopen(req).read()
 
-        # If available, log status code
-        try:
-            Log('[javdb] HTTP: %s' % resp.getcode())
-        except:
-            pass
-
-        data = resp.read()
-
-        # Log first 200 chars so we can see Cloudflare/block pages
-        try:
-            preview = data[:200]
-            if isinstance(preview, str):
-                Log('[javdb] Body head: %s' % preview)
-        except:
-            pass
-
-        return data
-
-    except urllib2.HTTPError as e:
-        body = ''
-        try:
-            body = e.read()
-        except:
-            pass
-        Log('[javdb] HTTPError %s for %s' % (str(e.code), url))
-        Log('[javdb] Error body head: %s' % body[:200])
-        raise
-
-    except Exception as e:
-        Log('[javdb] Request failed for %s: %s' % (url, str(e)))
-        raise
+    return response
 
 
 def elementToString(ele):
@@ -94,7 +50,7 @@ def search(query, results, media, lang):
         results.Sort('score', descending=True)
         Log('movie found: %s' % results)
     except Exception as e:
-        Log('My Custome Error[javdb]: %s' % e)
+        Log('My Custome Error: %s' % e)
 
 
 def update(metadata, media, lang):
