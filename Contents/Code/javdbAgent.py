@@ -9,8 +9,8 @@ import cookielib
 _cookiejar = cookielib.LWPCookieJar()
 _opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(_cookiejar))
 
-BASE_URL = 'https://javdb.com'
-SEARCH_URL = BASE_URL + '/search?q=%s'
+BASE_URL = 'http://192.168.68.134:8765'
+SEARCH_URL = BASE_URL + '/search?code=%s'
 curID = "javdb"
 
 
